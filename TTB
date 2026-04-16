@@ -1,45 +1,51 @@
 import java.util.*;
+import java.time.LocalTime;
 
 // ───────── CUSTOMER ─────────
 class Customer {
-    private int userId;          // 5‑digit random ID
-    private String name;         // max 50 chars
-    private String email;        // unique, ends with @gmail.com
-    private String password;     // 6–12 chars
-    private String address;      // max 100 chars
-    private String contact;      // 10 digits, starts with 6/7/8/9
+    private int userId;
+    private String name, email, password, address, contactNumber;
 
     public Customer(int userId, String name, String email, String password,
-                    String address, String contact) {
-        this.userId   = userId;
-        this.name     = name;
-        this.email    = email;
+                    String address, String contactNumber) {
+
+        if (name.length() > 50)
+            throw new IllegalArgumentException("Username max 50 characters");
+
+        if (!email.contains("@"))
+            throw new IllegalArgumentException("Invalid email");
+
+        if (password.length() < 6 || password.length() > 12)
+            throw new IllegalArgumentException("Password must be 6-12 chars");
+
+        if (address.length() > 100)
+            throw new IllegalArgumentException("Address max 100 characters");
+
+        if (!contactNumber.matches("\\d{10}"))
+            throw new IllegalArgumentException("Contact must be 10 digits");
+
+        this.userId = userId;
+        this.name = name;
+        this.email = email;
         this.password = password;
-        this.address  = address;
-        this.contact  = contact;
+        this.address = address;
+        this.contactNumber = contactNumber;
     }
 
-    public int getUserId()       { return userId;   }
-    public String getName()      { return name;     }
-    public String getEmail()     { return email;    }
-    public String getPassword()  { return password; }
-    public String getAddress()   { return address;  }
-    public String getContact()   { return contact;  }
-
-    public void setName(String name)        { this.name    = name;    }
-    public void setEmail(String email)      { this.email   = email;   }
-    public void setPassword(String password){ this.password = password;}
-    public void setAddress(String address)  { this.address = address; }
-    public void setContact(String contact)  { this.contact = contact; }
+    public int getUserId() { return userId; }
+    public String getEmail() { return email; }
+    public String getPassword() { return password; }
+    public String getName() { return name; }
+    public String getAddress() { return address; }
 }
 
 // ───────── ADMIN ─────────
 class Admin {
     String username, password;
 
-    public Admin(String username, String password) {
-        this.username = username;
-        this.password = password;
+    public Admin(String u, String p) {
+        username = u;
+        password = p;
     }
 }
 
@@ -47,147 +53,158 @@ class Admin {
 class Train {
     int trainNo;
     String name, source, destination;
+    String departure, arrival;
     int seats;
-    String departureTime, arrivalTime;
 
-    public Train(int trainNo, String name, String source, String destination,
-                 int seats, String departureTime, String arrivalTime) {
-        this.trainNo = trainNo;
+    public Train(int no, String name, String s, String d,
+                 String dep, String arr, int seats) {
+        this.trainNo = no;
         this.name = name;
-        this.source = source;
-        this.destination = destination;
+        this.source = s;
+        this.destination = d;
+        this.departure = dep;
+        this.arrival = arr;
         this.seats = seats;
-        this.departureTime = departureTime;
-        this.arrivalTime = arrivalTime;
     }
 
     public void display() {
         System.out.println(trainNo + " | " + name + " | " +
                 source + " -> " + destination +
-                " | Dep: " + departureTime +
-                " | Arr: " + arrivalTime +
+                " | " + departure + " - " + arrival +
                 " | Seats: " + seats);
     }
 }
 
 // ───────── BOOKING ─────────
 class Booking {
-    int bookingId, userId, trainNo, seats;
+    int bookingId;
+    int customerId;
+    String userName;
+    String date;
+    String boarding;
+    String destination;
+    String category;
+    int trainNo;
+    String trainName;
+    int ticketCount;
+
+    List<String> passengerNames;
+    List<Integer> passengerAges;
+
+    String seats;
     double fare;
+    String boardingDateTime;
+    String arrivalDateTime;
+
     String status;
 
-    String username, mobile, date, boarding, destination;
-    int age;
-    String category;
-    String departureTime, arrivalTime;
-
-    public Booking(int bookingId, int userId, int trainNo, int seats, double fare,
-                   String username, String mobile, int age,
+    public Booking(int bookingId, int customerId,
+                   String userName,
                    String date, String boarding, String destination,
-                   String category, String departureTime, String arrivalTime) {
-        this.bookingId = bookingId;
-        this.userId = userId;
-        this.trainNo = trainNo;
-        this.seats = seats;
-        this.fare = fare;
-        this.status = "CONFIRMED";
+                   String category, int trainNo, String trainName,
+                   int ticketCount,
+                   List<String> passengerNames,
+                   List<Integer> passengerAges,
+                   String seats,
+                   double fare,
+                   String boardingDateTime,
+                   String arrivalDateTime) {
 
-        this.username = username;
-        this.mobile = mobile;
-        this.age = age;
+        this.bookingId = bookingId;
+        this.customerId = customerId;
+        this.userName = userName;
         this.date = date;
         this.boarding = boarding;
         this.destination = destination;
         this.category = category;
-        this.departureTime = departureTime;
-        this.arrivalTime = arrivalTime;
+        this.trainNo = trainNo;
+        this.trainName = trainName;
+        this.ticketCount = ticketCount;
+        this.passengerNames = passengerNames;
+        this.passengerAges = passengerAges;
+        this.seats = seats;
+        this.fare = fare;
+        this.boardingDateTime = boardingDateTime;
+        this.arrivalDateTime = arrivalDateTime;
+        this.status = "CONFIRMED";
     }
 
     public void cancel() {
         this.status = "CANCELLED";
     }
 
-    public boolean isCancelled() {
-        return "CANCELLED".equals(this.status);
-    }
-
-    public boolean belongsToUser(int userId) {
-        return this.userId == userId;
-    }
-
     public void display() {
-        System.out.println("\n===== TICKET =====");
-        System.out.println("BookingID: " + bookingId);
-        System.out.println("User ID: " + userId);
-        System.out.println("Name: " + username);
-        System.out.println("Mobile: " + mobile);
-        System.out.println("Age: " + age);
-        System.out.println("Train: " + trainNo);
+        System.out.println("\n===== BOOKING DETAILS =====");
+        System.out.println("Booking ID: " + bookingId);
+        System.out.println("Customer ID: " + customerId);
+        System.out.println("User Name: " + userName);
+        System.out.println("Boarding: " + boarding);
+        System.out.println("Destination: " + destination);
         System.out.println("Category: " + category);
-        System.out.println("From: " + boarding + " To: " + destination);
-        System.out.println("Date: " + date);
-        System.out.println("Departure: " + departureTime);
-        System.out.println("Arrival: " + arrivalTime);
-        System.out.println("Seats: " + seats);
-        System.out.println("Fare: Rs." + fare);
+        System.out.println("Train No: " + trainNo);
+        System.out.println("Train Name: " + trainName);
+        System.out.println("Tickets: " + ticketCount);
+        System.out.println("Fare: " + fare);
         System.out.println("Status: " + status);
+
+        System.out.println("Passengers:");
+        for (int i = 0; i < passengerNames.size(); i++) {
+            System.out.println(passengerNames.get(i) + " | Age: " + passengerAges.get(i));
+        }
     }
 }
 
 // ───────── MAIN ─────────
 public class Main {
+
     static List<Customer> customers = new ArrayList<>();
     static List<Admin> admins = new ArrayList<>();
     static List<Train> trains = new ArrayList<>();
     static List<Booking> bookings = new ArrayList<>();
-    static int bookingCounter = 1;
     static Random random = new Random();
 
-    // validation helpers
-    static boolean isValidName(String s) {
-        return s != null && s.length() <= 50 && s.trim().length() > 0;
+    static double calculateFare(int tickets, String category) {
+        int baseFare;
+
+        switch (category) {
+            case "AC1": baseFare = 1000; break;
+            case "AC2": baseFare = 750; break;
+            case "AC3": baseFare = 500; break;
+            case "Sleeper": baseFare = 250; break;
+            case "Tatkal": baseFare = 900 + 300; break;
+            default: baseFare = 150;
+        }
+
+        return tickets * baseFare;
     }
 
-    static boolean isValidEmail(String s) {
-        if (s == null || s.length() < "abc@gmail.com".length()) return false;
-        if (!s.endsWith("@gmail.com")) return false;
-        String local = s.substring(0, s.indexOf("@gmail.com"));
-        return local.length() > 0;
-    }
+    static void viewBookingHistory(int customerId) {
+        boolean found = false;
 
-    static boolean isEmailUnique(String email) {
-        for (Customer c : customers)
-            if (c.getEmail().equalsIgnoreCase(email))
-                return false;
-        return true;
-    }
+        for (Booking b : bookings) {
+            if (b.customerId == customerId) {
+                b.display();
+                found = true;
+            }
+        }
 
-    static boolean isValidPassword(String s) {
-        return s != null && s.length() >= 6 && s.length() <= 12;
-    }
-
-    static boolean isValidAddress(String s) {
-        return s != null && s.length() <= 100 && s.trim().length() > 0;
-    }
-
-    static boolean isValidContact(String s) {
-        if (s == null || s.length() != 10) return false;
-        if (!Character.isDigit(s.charAt(0))) return false;
-        char first = s.charAt(0);
-        return first == '6' || first == '7' || first == '8' || first == '9';
+        if (!found)
+            System.out.println("No bookings found.");
     }
 
     public static void main(String[] args) {
+
         Scanner sc = new Scanner(System.in);
 
         admins.add(new Admin("admin", "admin123"));
 
-        trains.add(new Train(101, "Delhi-Mumbai Express", "Delhi", "Mumbai", 100, "06:00", "18:00"));
-        trains.add(new Train(102, "Mumbai-Chennai Express", "Mumbai", "Chennai", 80, "08:30", "22:00"));
-        trains.add(new Train(103, "Bangalore-Hyderabad Express", "Bangalore", "Hyderabad", 90, "07:15", "13:30"));
+        trains.add(new Train(101, "Delhi Express", "Delhi", "Mumbai", "06:00", "20:00", 100));
+        trains.add(new Train(102, "Mumbai Express", "Mumbai", "Chennai", "08:30", "22:30", 80));
+        trains.add(new Train(103, "Morning Fast", "Delhi", "Mumbai", "07:30", "21:30", 90));
 
         while (true) {
-            System.out.println("\n====== Railway System ======");
+
+            System.out.println("\n====== RAILWAY SYSTEM ======");
             System.out.println("1. Register");
             System.out.println("2. Login");
             System.out.println("3. Exit");
@@ -195,78 +212,42 @@ public class Main {
             int choice = sc.nextInt();
             sc.nextLine();
 
-            // REGISTER
             if (choice == 1) {
-                System.out.println("1. User Registration");
-                System.out.println("2. Admin Registration");
-                int reg = sc.nextInt();
-                sc.nextLine();
 
-                if (reg == 1) {
-                    System.out.print("Name (max 50): ");
-                    String name = sc.nextLine();
+                System.out.print("Name: ");
+                String name = sc.nextLine();
 
-                    System.out.print("Email (@gmail.com): ");
-                    String email = sc.nextLine();
+                System.out.print("Email: ");
+                String email = sc.nextLine();
 
-                    if (!isValidName(name)) {
-                        System.out.println("Invalid name! Must be 1–50 characters.");
-                        continue;
-                    }
+                System.out.print("Password: ");
+                String pass = sc.nextLine();
 
-                    if (!isValidEmail(email)) {
-                        System.out.println("Invalid email! Must be unique and end with @gmail.com.");
-                        continue;
-                    }
+                System.out.print("Address: ");
+                String addr = sc.nextLine();
 
-                    if (!isEmailUnique(email)) {
-                        System.out.println("Email already exists!");
-                        continue;
-                    }
+                System.out.print("Contact: ");
+                String contact = sc.nextLine();
 
-                    System.out.print("Password (6–12 chars): ");
-                    String pass = sc.nextLine();
-                    if (!isValidPassword(pass)) {
-                        System.out.println("Password must be 6–12 characters.");
-                        continue;
-                    }
+                int id = 10000 + random.nextInt(90000);
 
-                    System.out.print("Address (max 100): ");
-                    String address = sc.nextLine();
-                    if (!isValidAddress(address)) {
-                        System.out.println("Address must be 1–100 characters.");
-                        continue;
-                    }
-
-                    System.out.print("Mobile (10 digits, starts 6/7/8/9): ");
-                    String contact = sc.nextLine();
-                    if (!isValidContact(contact)) {
-                        System.out.println("Invalid mobile! Must be 10 digits starting with 6/7/8/9.");
-                        continue;
-                    }
-
-                    int id = 10000 + random.nextInt(90000);
-                    customers.add(new Customer(id, name, email, pass, address, contact));
-
-                    System.out.println("\nRegistration Successful!");
-                    System.out.println("Your User ID: " + id);
-                } else {
-                    System.out.print("Username: ");
-                    String u = sc.nextLine();
-                    System.out.print("Password: ");
-                    String p = sc.nextLine();
-                    admins.add(new Admin(u, p));
+                try {
+                    customers.add(new Customer(id, name, email, pass, addr, contact));
+                    System.out.println("Registered! User ID: " + id);
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
                 }
             }
 
-            // LOGIN
             else if (choice == 2) {
+
                 System.out.println("1. User Login");
                 System.out.println("2. Admin Login");
+
                 int type = sc.nextInt();
                 sc.nextLine();
 
-                System.out.print("Enter Email/User: ");
+                System.out.print("Email/Username: ");
                 String id = sc.nextLine();
 
                 System.out.print("Password: ");
@@ -274,207 +255,260 @@ public class Main {
 
                 // USER LOGIN
                 if (type == 1) {
-                    Customer loggedUser = null;
+
+                    Customer user = null;
 
                     for (Customer c : customers) {
-                        if ((c.getEmail().equalsIgnoreCase(id) ||
-                             c.getName().equalsIgnoreCase(id)) &&
-                            c.getPassword().equals(pwd)) {
-                            loggedUser = c;
+                        if (c.getEmail().equals(id) && c.getPassword().equals(pwd)) {
+                            user = c;
                             break;
                         }
                     }
 
-                    if (loggedUser == null) {
-                        System.out.println("Invalid Credentials!");
+                    if (user == null) {
+                        System.out.println("Invalid login!");
                         continue;
                     }
 
-                    System.out.println("Login Successful!");
-
                     while (true) {
-                        System.out.println("\n1. View Trains  2. Book  3. Cancel Ticket  4. View My Tickets  5. Edit Profile  6. Logout");
+
+                        System.out.println("\n--- USER MENU ---");
+                        System.out.println("1. View Trains");
+                        System.out.println("2. Search Trains");
+                        System.out.println("3. Book Ticket");
+                        System.out.println("4. View History");
+                        System.out.println("5. Update Profile");
+                        System.out.println("6. Cancel Ticket");
+                        System.out.println("7. Logout");
+
                         int ch = sc.nextInt();
                         sc.nextLine();
 
                         if (ch == 1) {
-                            System.out.print("Source: ");
-                            String s = sc.nextLine();
-                            System.out.print("Destination: ");
-                            String d = sc.nextLine();
-
-                            for (Train t : trains)
-                                if (t.source.equalsIgnoreCase(s) &&
-                                    t.destination.equalsIgnoreCase(d))
-                                    t.display();
+                            for (Train t : trains) t.display();
                         }
 
                         else if (ch == 2) {
-                            int uid   = loggedUser.getUserId();
-                            String uname = loggedUser.getName();
 
-                            System.out.print("Mobile: ");
-                            String mob = sc.nextLine();
+                            System.out.print("Source: ");
+                            String s = sc.nextLine();
 
-                            System.out.print("Age: ");
-                            int age = sc.nextInt();
-                            sc.nextLine();
+                            System.out.print("Destination: ");
+                            String d = sc.nextLine();
 
-                            System.out.print("Date: ");
-                            String date = sc.nextLine();
+                            List<Train> res = new ArrayList<>();
 
-                            System.out.print("Boarding: ");
-                            String src = sc.nextLine();
+                            for (Train t : trains) {
+                                if (t.source.equalsIgnoreCase(s) &&
+                                    t.destination.equalsIgnoreCase(d)) {
+                                    res.add(t);
+                                }
+                            }
+
+                            res.sort((a, b) ->
+                                    LocalTime.parse(a.departure)
+                                            .compareTo(LocalTime.parse(b.departure)));
+
+                            for (Train t : res) t.display();
+                        }
+
+                        else if (ch == 3) {
+
+                            System.out.print("Source: ");
+                            String boarding = sc.nextLine();
 
                             System.out.print("Destination: ");
                             String dest = sc.nextLine();
 
-                            List<Train> list = new ArrayList<>();
-                            for (Train t : trains)
-                                if (t.source.equalsIgnoreCase(src) &&
-                                    t.destination.equalsIgnoreCase(dest))
-                                    list.add(t);
+                            List<Train> available = new ArrayList<>();
 
-                            for (Train t : list) t.display();
+                            for (Train t : trains) {
+                                if (t.source.equalsIgnoreCase(boarding) &&
+                                    t.destination.equalsIgnoreCase(dest)) {
+                                    available.add(t);
+                                }
+                            }
+
+                            if (available.isEmpty()) {
+                                System.out.println("No trains available!");
+                                continue;
+                            }
+
+                            for (Train t : available) t.display();
 
                             System.out.print("Train No: ");
                             int tno = sc.nextInt();
+                            sc.nextLine();
 
                             Train selected = null;
-                            for (Train t : list)
-                                if (t.trainNo == tno)
-                                    selected = t;
+
+                            for (Train t : available) {
+                                if (t.trainNo == tno) selected = t;
+                            }
 
                             if (selected == null) {
-                                System.out.println("Invalid Train No.");
+                                System.out.println("Invalid train!");
                                 continue;
                             }
 
-                            System.out.print("Seats: ");
-                            int seats = sc.nextInt();
-                            if (seats > selected.seats || seats <= 0) {
-                                System.out.println("Not enough seats or invalid seat count.");
+                            System.out.print("Category: ");
+                            String category = sc.nextLine();
+
+                            System.out.print("Tickets: ");
+                            int tickets = sc.nextInt();
+                            sc.nextLine();
+
+                            if (selected.seats < tickets) {
+                                System.out.println("Not enough seats!");
                                 continue;
                             }
 
-                            selected.seats -= seats;
+                            List<String> names = new ArrayList<>();
+                            List<Integer> ages = new ArrayList<>();
+
+                            for (int i = 0; i < tickets; i++) {
+                                System.out.print("Passenger Name: ");
+                                names.add(sc.nextLine());
+
+                                System.out.print("Age: ");
+                                ages.add(sc.nextInt());
+                                sc.nextLine();
+                            }
+
+                            String seats = "";
+                            for (int i = 1; i <= tickets; i++)
+                                seats += "S" + i + ",";
+
+                            double fare = calculateFare(tickets, category);
+
+                            int bookingId = 100000 + random.nextInt(900000);
 
                             Booking b = new Booking(
-                                    bookingCounter++, uid, tno, seats, seats * 500,
-                                    uname, mob, age, date, src, dest, "General",
-                                    selected.departureTime,
-                                    selected.arrivalTime
+                                    bookingId,
+                                    user.getUserId(),
+                                    user.getName(),
+                                    "Today",
+                                    boarding,
+                                    dest,
+                                    category,
+                                    selected.trainNo,
+                                    selected.name,
+                                    tickets,
+                                    names,
+                                    ages,
+                                    seats,
+                                    fare,
+                                    selected.departure,
+                                    selected.arrival
                             );
 
+                            selected.seats -= tickets;
                             bookings.add(b);
+
+                            System.out.println("\nBOOKING SUCCESSFUL!");
                             b.display();
                         }
 
-                        else if (ch == 3) {
-                            System.out.println("\n=== CANCEL TICKET ===");
-                            System.out.print("Enter Booking ID: ");
-                            int bid = sc.nextInt();
-                            sc.nextLine();
-
-                            Booking toCancel = null;
-                            Train relatedTrain = null;
-
-                            for (Booking b : bookings) {
-                                if (b.bookingId == bid &&
-                                    b.belongsToUser(loggedUser.getUserId()) &&
-                                    !"CANCELLED".equals(b.status)) {
-                                    toCancel = b;
-
-                                    // try to find the train it belongs to
-                                    for (Train t : trains) {
-                                        if (t.trainNo == b.trainNo) {
-                                            relatedTrain = t;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (toCancel == null) {
-                                System.out.println("Ticket not found or already cancelled.");
-                            } else {
-                                toCancel.cancel();
-                                if (relatedTrain != null) {
-                                    relatedTrain.seats += toCancel.seats;
-                                }
-                                System.out.println("Ticket cancelled successfully. Seats restored.");
-                            }
-                        }
-
                         else if (ch == 4) {
-                            System.out.println("\n=== TICKET HISTORY ===");
-                            boolean found = false;
-                            for (Booking b : bookings) {
-                                if (b.belongsToUser(loggedUser.getUserId())) {
-                                    b.display();
-                                    found = true;
-                                }
-                            }
-                            if (!found)
-                                System.out.println("No tickets found.");
+                            viewBookingHistory(user.getUserId());
                         }
 
                         else if (ch == 5) {
+
+                            System.out.println("Update Profile:");
+
                             System.out.print("New Name: ");
-                            loggedUser.setName(sc.nextLine());
+                            String newName = sc.nextLine();
 
                             System.out.print("New Email: ");
                             String newEmail = sc.nextLine();
-                            if (isEmailUnique(newEmail) &&
-                                isValidEmail(newEmail)) {
-                                loggedUser.setEmail(newEmail);
-                            } else {
-                                System.out.println("Email not allowed (not unique or format invalid).");
-                            }
 
-                            System.out.print("Enter Old Password: ");
-                            String old = sc.nextLine();
+                            System.out.print("New Password: ");
+                            String newPass = sc.nextLine();
 
-                            if (loggedUser.getPassword().equals(old)) {
-                                System.out.print("New Password (6–12 chars): ");
-                                String np = sc.nextLine();
-                                if (isValidPassword(np)) {
-                                    loggedUser.setPassword(np);
-                                    System.out.println("Your details updated successfully");
-                                } else {
-                                    System.out.println("Password must be 6–12 characters.");
+                            System.out.print("New Contact: ");
+                            String newContact = sc.nextLine();
+
+                            try {
+                                Customer updated = new Customer(
+                                        user.getUserId(),
+                                        newName,
+                                        newEmail,
+                                        newPass,
+                                        user.getAddress(),
+                                        newContact
+                                );
+
+                                for (int i = 0; i < customers.size(); i++) {
+                                    if (customers.get(i).getUserId() == user.getUserId()) {
+                                        customers.set(i, updated);
+                                        break;
+                                    }
                                 }
-                            } else {
-                                System.out.println("Wrong password!");
+
+                                user = updated;
+                                System.out.println("Profile updated successfully!");
+
+                            } catch (Exception e) {
+                                System.out.println(e.getMessage());
                             }
                         }
 
-                        else if (ch == 6) break;
+                        else if (ch == 6) {
+
+                            System.out.print("Enter Booking ID: ");
+                            int bid = sc.nextInt();
+
+                            for (Booking b : bookings) {
+                                if (b.bookingId == bid &&
+                                    b.customerId == user.getUserId()) {
+                                    b.cancel();
+                                    System.out.println("Ticket cancelled successfully!");
+                                }
+                            }
+                        }
+
+                        else if (ch == 7) break;
                     }
                 }
 
                 // ADMIN LOGIN
                 else if (type == 2) {
-                    Admin ad = null;
 
-                    for (Admin a : admins)
-                        if (a.username.equals(id) && a.password.equals(pwd))
-                            ad = a;
+                    Admin logged = null;
 
-                    if (ad == null) {
-                        System.out.println("Invalid Admin!");
+                    for (Admin a : admins) {
+                        if (a.username.equals(id) && a.password.equals(pwd)) {
+                            logged = a;
+                            break;
+                        }
+                    }
+
+                    if (logged == null) {
+                        System.out.println("Invalid admin login!");
                         continue;
                     }
 
                     while (true) {
-                        System.out.println("\n1. Add Train  2. View Trains  3. Update Train  4. Logout");
+
+                        System.out.println("\n--- ADMIN MENU ---");
+                        System.out.println("1. View Trains");
+                        System.out.println("2. Add Train");
+                        System.out.println("3. Update Train");
+                        System.out.println("4. Delete Train");
+                        System.out.println("5. Logout");
+
                         int ch = sc.nextInt();
                         sc.nextLine();
 
                         if (ch == 1) {
-                            System.out.print("No: ");
-                            int no = sc.nextInt();
-                            sc.nextLine();
+                            for (Train t : trains) t.display();
+                        }
+
+                        else if (ch == 2) {
+
+                            System.out.print("Train No: ");
+                            int no = sc.nextInt(); sc.nextLine();
 
                             System.out.print("Name: ");
                             String name = sc.nextLine();
@@ -482,52 +516,71 @@ public class Main {
                             System.out.print("Source: ");
                             String s = sc.nextLine();
 
-                            System.out.print("Dest: ");
+                            System.out.print("Destination: ");
                             String d = sc.nextLine();
 
-                            System.out.print("Dep: ");
+                            System.out.print("Departure: ");
                             String dep = sc.nextLine();
 
-                            System.out.print("Arr: ");
+                            System.out.print("Arrival: ");
                             String arr = sc.nextLine();
 
                             System.out.print("Seats: ");
-                            int seats = sc.nextInt();
+                            int seats = sc.nextInt(); sc.nextLine();
 
-                            trains.add(new Train(no, name, s, d, seats, dep, arr));
+                            trains.add(new Train(no, name, s, d, dep, arr, seats));
+                            System.out.println("Train added!");
                         }
 
-                        else if (ch == 2)
-                            for (Train t : trains)
-                                t.display();
-
                         else if (ch == 3) {
-                            System.out.print("Train No: ");
-                            int tno = sc.nextInt();
-                            sc.nextLine();
 
-                            boolean found = false;
+                            System.out.print("Train No: ");
+                            int no = sc.nextInt(); sc.nextLine();
+
                             for (Train t : trains) {
-                                if (t.trainNo == tno) {
-                                    found = true;
+                                if (t.trainNo == no) {
+
                                     System.out.print("New Name: ");
                                     t.name = sc.nextLine();
+
+                                    System.out.print("New Source: ");
+                                    t.source = sc.nextLine();
+
+                                    System.out.print("New Destination: ");
+                                    t.destination = sc.nextLine();
+
+                                    System.out.print("New Departure: ");
+                                    t.departure = sc.nextLine();
+
+                                    System.out.print("New Arrival: ");
+                                    t.arrival = sc.nextLine();
+
                                     System.out.print("New Seats: ");
-                                    int newSeats = sc.nextInt();
-                                    t.seats = newSeats;
+                                    t.seats = sc.nextInt(); sc.nextLine();
+
                                     System.out.println("Updated!");
                                 }
                             }
-                            if (!found)
-                                System.out.println("Train not found.");
                         }
 
-                        else break;
+                        else if (ch == 4) {
+                            System.out.print("Train No: ");
+                            int no = sc.nextInt();
+                            trains.removeIf(t -> t.trainNo == no);
+                            System.out.println("Deleted!");
+                        }
+
+                        else if (ch == 5) break;
                     }
                 }
             }
 
-            else break;
+            else if (choice == 3) {
+                System.out.println("Thank you!");
+                break;
+            }
         }
+
+        sc.close();
     }
 }
